@@ -1,0 +1,66 @@
+{
+  "rows": {
+    "company_years": 89708,
+    "train": 49783,
+    "test": 23917,
+    "positive_rate_train": 0.1368,
+    "positive_rate_test": 0.0972,
+    "m_score_computable_test": 0.3362
+  },
+  "test_all": {
+    "model": {
+      "auc": 0.5766,
+      "avg_precision": 0.1279,
+      "precision_top5pct": 0.169,
+      "precision_top10pct": 0.1527
+    },
+    "beneish_m_score": {
+      "auc": 0.4931,
+      "avg_precision": 0.1004,
+      "precision_top5pct": 0.1021,
+      "precision_top10pct": 0.0912
+    },
+    "beneish_ratios_refit": {
+      "auc": 0.4819,
+      "avg_precision": 0.0998,
+      "precision_top5pct": 0.1188,
+      "precision_top10pct": 0.1146
+    },
+    "base_rate": 0.0972,
+    "model_without_history": {
+      "auc": 0.5867,
+      "avg_precision": 0.1353,
+      "precision_top5pct": 0.2042,
+      "precision_top10pct": 0.1731
+    }
+  },
+  "test_m_score_computable": {
+    "model": {
+      "auc": 0.5324,
+      "avg_precision": 0.0862,
+      "precision_top5pct": 0.097,
+      "precision_top10pct": 0.0771
+    },
+    "beneish_m_score": {
+      "auc": 0.4867,
+      "avg_precision": 0.0887,
+      "precision_top5pct": 0.1144,
+      "precision_top10pct": 0.1132
+    },
+    "base_rate": 0.0782
+  },
+  "importance_auc_drop": {
+    "equity_to_assets": 0.0482,
+    "filing_lag_days": 0.0255,
+    "cash_to_assets": 0.0207,
+    "sgi": 0.0107,
+    "missing_items": 0.0095,
+    "depi": 0.0091,
+    "aqi": 0.0028,
+    "loss": 0.0012,
+    "sic_division": 0.001,
+    "afs_NON": 0.0,
+    "accruals": 0.0,
+    "revenue_growth": 0.0
+  }
+}

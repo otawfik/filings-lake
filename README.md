@@ -7,7 +7,7 @@ have their numbers revised, benchmarked against the Beneish M-score.
 **Status: in progress.** Built so far: ingestion, the line-item mapping, the bronze/silver/gold
 pipeline, and the model and its tests. Still to come: the full-history model results, Databricks
 jobs, the Snowflake serving layer (Iceberg, dbt, Streams/Tasks) and a text-to-SQL agent with an eval
-gate. Numbers below are only ones that have actually been measured.
+gate. Every number below was measured from the code in this repo.
 
 ## Measured so far
 
@@ -18,6 +18,27 @@ gate. Numbers below are only ones that have actually been measured.
   receivables 54.3%. The gaps are real and expected: banks, insurers and REITs report revenue,
   inventory and cost of sales under different tags or not at all. Sector-specific mappings and
   mapping companies' custom extension tags are next.
+
+- **Pipeline output (full history):** 12,436,144 silver facts, 218,837 revisions, 91,958 company-years.
+- **Revision model, first honest result: weak.** Test set: 23,917 10-Ks filed 2021–2024, 9.7% of them
+  revised within 24 months.
+
+  | | AUC | avg precision | precision, top 5% |
+  |---|---|---|---|
+  | model | 0.577 | 0.128 | 16.9% |
+  | Beneish M-score (published coefficients) | 0.493 | 0.100 | 10.2% |
+  | the eight Beneish ratios, refitted | 0.482 | 0.100 | 11.9% |
+
+  On the third of companies where every Beneish input exists, the model falls to 0.532, and the
+  M-score beats it on top-5% precision. Beneish is built to catch earnings *manipulation*. This label,
+  "a figure was later revised", is broader and noisier, so neither result is a fraud detector.
+
+  **How a first run reached 0.671 and why that was wrong.** It counted a "revision" whenever a
+  line item's value changed between filings, including when the second filing used a different tag
+  for it (equity with minority interests, after equity without). Those tag switches were 98,518 of
+  317,355 "revisions", and the model learned to predict them. Counting a change only under the same
+  tag fixed it. Next: a stronger label from 8-K Item 4.02 "non-reliance" filings (the SEC's own
+  restatement disclosure), and excluding years when a new accounting standard was adopted.
 
 ## Pipeline
 

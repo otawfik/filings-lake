@@ -23,6 +23,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import HistGradientBoostingClassifier
+from sklearn.inspection import permutation_importance
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import average_precision_score, roc_auc_score
 from sklearn.pipeline import make_pipeline
@@ -150,6 +151,14 @@ def main() -> None:
             "beneish_m_score": evaluate(yt[comp[test]], m[test][comp[test]]),
             "base_rate": round(float(yt[comp[test]].mean()), 4)},
     }
+    imp = permutation_importance(gbm, x[test], yt, scoring="roc_auc", n_repeats=3, random_state=0)
+    report["importance_auc_drop"] = {c: round(float(v), 4) for c, v in
+                                     sorted(zip(x.columns, imp.importances_mean), key=lambda kv: -kv[1])[:12]}
+    # does it work without the company's own revision history? (the obvious "they did it before" signal)
+    no_hist = [c for c in x.columns if c != "prior_revisions"]
+    g2 = HistGradientBoostingClassifier(max_iter=400, learning_rate=0.05, max_leaf_nodes=31, l2_regularization=1.0,
+                                        class_weight="balanced", random_state=0).fit(x[train][no_hist], y[train])
+    report["test_all"]["model_without_history"] = evaluate(yt, g2.predict_proba(x[test][no_hist])[:, 1])
     REPORT.parent.mkdir(exist_ok=True)
     REPORT.write_text(json.dumps(report, indent=2) + "\n")
     print(json.dumps(report, indent=2))
