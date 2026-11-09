@@ -6,7 +6,8 @@ silver.facts              one value per (filing, standard line item, period): th
                           the filing used (concepts.py), whole-company, USD
 gold.versions             every value every filing ever reported for a company's line item and period,
                           in filing order: the point-in-time history
-gold.revisions            a later filing changed a figure an earlier one reported (by > 1% and > $100K)
+gold.revisions            a later filing changed a figure an earlier one reported under the same tag
+                          (by > 1% and > $100K)
 gold.annual               one row per company-year, as reported in that year's own 10-K (so every
                           feature is known on the filing date), with the prior year beside it
 """
@@ -38,7 +39,7 @@ def spark_session() -> SparkSession:
     b = (SparkSession.builder.master("local[*]").appName("filings-lake")
          .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
          .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
-         .config("spark.driver.memory", "6g").config("spark.sql.shuffle.partitions", "16")
+         .config("spark.driver.memory", "2g").config("spark.sql.shuffle.partitions", "32")
          .config("spark.ui.enabled", "false").config("spark.sql.session.timeZone", "UTC")
          .config("spark.local.dir", str(ROOT / "spark-tmp")))
     s = configure_spark_with_delta_pip(b).getOrCreate()
@@ -96,12 +97,15 @@ def gold(spark: SparkSession, facts: DataFrame) -> dict[str, DataFrame]:
                 .withColumn("first_filed", F.first("filed").over(order))
                 .withColumn("first_adsh", F.first("adsh").over(order))
                 .withColumn("prev_value", F.lag("value").over(order))
-                .select(*key, "version", "adsh", "form", "filed", "tag", "value", "prev_value",
+                .withColumn("prev_tag", F.lag("tag").over(order))
+                .select(*key, "version", "adsh", "form", "filed", "tag", "prev_tag", "value", "prev_value",
                         "first_value", "first_filed", "first_adsh"))
     versions = write(versions, "gold.versions")
 
     change = F.abs(F.col("value") - F.col("prev_value"))
-    revisions = (versions.where("version > 1")
+    # same tag both times: a filing that only reported equity including minority interests, after one
+    # that reported it without, is a different measure, not a revision
+    revisions = (versions.where("version > 1").where(F.col("tag") == F.col("prev_tag"))
                  .where((change > REVISION_ABS) & (change > REVISION_REL * F.greatest(F.abs("prev_value"), F.lit(1.0))))
                  .withColumn("days_after_first", F.datediff("filed", "first_filed")))
     revisions = write(revisions, "gold.revisions")
