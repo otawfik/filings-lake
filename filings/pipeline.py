@@ -10,6 +10,9 @@ gold.revisions            a later filing changed a figure an earlier one reporte
                           (by > 1% and > $100K)
 gold.annual               one row per company-year, as reported in that year's own 10-K (so every
                           feature is known on the filing date), with the prior year beside it
+gold.filings              one row per 10-K / 10-Q filing and amendment: who filed what, when
+silver.events             8-K Item 4.02 (non-reliance) and 4.01 (auditor change) filings and NT 10-K
+                          notices, from EDGAR full-text search (edgar.py), with what each 4.02 says
 """
 from __future__ import annotations
 
@@ -125,13 +128,49 @@ def gold(spark: SparkSession, facts: DataFrame) -> dict[str, DataFrame]:
     return {"versions": versions, "revisions": revisions, "annual": write(annual, "gold.annual")}
 
 
+def filings(sub: DataFrame) -> DataFrame:
+    f = (sub.dropDuplicates(["adsh"])
+         .select("adsh", "cik", "name", "sic", "countryba", "form", "afs",
+                 F.to_date("period", "yyyyMMdd").alias("period"), F.to_date("filed", "yyyyMMdd").alias("filed")))
+    return write(f, "gold.filings")
+
+
+EVENT_KINDS = ("item_4_02", "item_4_01", "nt_10k")
+
+
+def events(spark: SparkSession, landing: Path | None = None) -> DataFrame | None:
+    """silver.events: one row per (event filing, CIK), with the kind of event; 4.02s carry what their text says."""
+    landing = landing or LAKE / "landing" / "events"
+    parts = [spark.read.parquet(str(landing / f"{k}.parquet")).withColumn("kind", F.lit(k))
+             .select("kind", "adsh", F.col("cik").cast("long"), F.to_date("filed").alias("filed"), "form", "items", "sic")
+             for k in EVENT_KINDS if (landing / f"{k}.parquet").exists()]
+    if not parts:
+        return None
+    ev = parts[0]
+    for p in parts[1:]:
+        ev = ev.unionByName(p)
+    text = landing / "item_4_02_text.parquet"
+    if text.exists():
+        t = spark.read.parquet(str(text)).select("adsh", "dates_named", "fiscal_years_named", "mentions_warrants",
+                                                 "mentions_redeemable_shares")
+        ev = ev.join(t, "adsh", "left")
+    return write(ev.dropDuplicates(["kind", "adsh", "cik"]), "silver.events")
+
+
 def main() -> None:
+    import time
+
+    t0 = time.time()
     spark = spark_session()
     num, sub = bronze(spark)
     facts = silver(spark, num, sub)
     g = gold(spark, facts)
-    for name, df in [("bronze (landed facts)", num), ("silver.facts", facts), *[(f"gold.{k}", v) for k, v in g.items()]]:
+    g["filings"] = filings(sub)
+    ev = events(spark)
+    tables = [("bronze (landed facts)", num), ("silver.facts", facts), *[(f"gold.{k}", v) for k, v in g.items()]]
+    for name, df in tables + ([("silver.events", ev)] if ev is not None else []):
         print(f"{name:14s} {df.count():>12,} rows")
+    print(f"pipeline wall time {time.time() - t0:,.0f}s")
 
 
 if __name__ == "__main__":
