@@ -9,3 +9,5 @@ metastore_db/
 derby.log
 *.egg-info/
 spark-tmp/
+*.log
+nohup.out
