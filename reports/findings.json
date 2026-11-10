@@ -1,0 +1,480 @@
+{
+  "universe": {
+    "original_10_ks": 76405,
+    "filed_from": "2012-01-03",
+    "filed_to": "2024-11-06",
+    "note": "original 10-Ks outside SIC 6770 with total assets, filed at least 24 months before the last event date (2026-11-06)"
+  },
+  "revisions": {
+    "universe": {
+      "ten_ks": 76405,
+      "with_any_of_the_four_items": 76405,
+      "changed_any_of_the_four_within_24m": 9105,
+      "rate": 0.1192
+    },
+    "by_line_item": {
+      "sga": {
+        "figures_reported": 60013,
+        "changed_within_24m": 6148,
+        "rate": 0.1024,
+        "median_days_to_change": 366,
+        "median_relative_change": 0.1066
+      },
+      "operating_income": {
+        "figures_reported": 56656,
+        "changed_within_24m": 5537,
+        "rate": 0.0977,
+        "median_days_to_change": 366,
+        "median_relative_change": 0.1584
+      },
+      "gross_profit": {
+        "figures_reported": 28406,
+        "changed_within_24m": 2159,
+        "rate": 0.076,
+        "median_days_to_change": 367,
+        "median_relative_change": 0.1292
+      },
+      "cost_of_revenue": {
+        "figures_reported": 37640,
+        "changed_within_24m": 2737,
+        "rate": 0.0727,
+        "median_days_to_change": 367,
+        "median_relative_change": 0.1339
+      },
+      "revenue": {
+        "figures_reported": 64159,
+        "changed_within_24m": 3778,
+        "rate": 0.0589,
+        "median_days_to_change": 366,
+        "median_relative_change": 0.1458
+      },
+      "current_assets": {
+        "figures_reported": 59242,
+        "changed_within_24m": 3425,
+        "rate": 0.0578,
+        "median_days_to_change": 239,
+        "median_relative_change": 0.06
+      },
+      "operating_cash_flow": {
+        "figures_reported": 74797,
+        "changed_within_24m": 4316,
+        "rate": 0.0577,
+        "median_days_to_change": 366,
+        "median_relative_change": 0.1014
+      },
+      "receivables": {
+        "figures_reported": 44134,
+        "changed_within_24m": 2546,
+        "rate": 0.0577,
+        "median_days_to_change": 228,
+        "median_relative_change": 0.1502
+      },
+      "current_liabilities": {
+        "figures_reported": 58720,
+        "changed_within_24m": 3262,
+        "rate": 0.0556,
+        "median_days_to_change": 221,
+        "median_relative_change": 0.0993
+      },
+      "inventory": {
+        "figures_reported": 31805,
+        "changed_within_24m": 1603,
+        "rate": 0.0504,
+        "median_days_to_change": 238,
+        "median_relative_change": 0.1438
+      },
+      "equity": {
+        "figures_reported": 72996,
+        "changed_within_24m": 3634,
+        "rate": 0.0498,
+        "median_days_to_change": 273,
+        "median_relative_change": 0.1963
+      },
+      "total_liabilities": {
+        "figures_reported": 61113,
+        "changed_within_24m": 2908,
+        "rate": 0.0476,
+        "median_days_to_change": 213,
+        "median_relative_change": 0.0604
+      },
+      "net_income": {
+        "figures_reported": 75247,
+        "changed_within_24m": 3467,
+        "rate": 0.0461,
+        "median_days_to_change": 365,
+        "median_relative_change": 0.2155
+      },
+      "depreciation": {
+        "figures_reported": 63658,
+        "changed_within_24m": 2805,
+        "rate": 0.0441,
+        "median_days_to_change": 366,
+        "median_relative_change": 0.1525
+      },
+      "ppe": {
+        "figures_reported": 60375,
+        "changed_within_24m": 2499,
+        "rate": 0.0414,
+        "median_days_to_change": 231,
+        "median_relative_change": 0.1591
+      },
+      "long_term_debt": {
+        "figures_reported": 29627,
+        "changed_within_24m": 1127,
+        "rate": 0.038,
+        "median_days_to_change": 156,
+        "median_relative_change": 0.0276
+      },
+      "total_assets": {
+        "figures_reported": 76405,
+        "changed_within_24m": 2822,
+        "rate": 0.0369,
+        "median_days_to_change": 230,
+        "median_relative_change": 0.0542
+      },
+      "cash": {
+        "figures_reported": 74147,
+        "changed_within_24m": 2709,
+        "rate": 0.0365,
+        "median_days_to_change": 358,
+        "median_relative_change": 0.2867
+      },
+      "capex": {
+        "figures_reported": 54255,
+        "changed_within_24m": 1886,
+        "rate": 0.0348,
+        "median_days_to_change": 367,
+        "median_relative_change": 0.1711
+      },
+      "securities": {
+        "figures_reported": 5158,
+        "changed_within_24m": 86,
+        "rate": 0.0167,
+        "median_days_to_change": 252,
+        "median_relative_change": 0.1346
+      }
+    },
+    "any_of_four_by_fiscal_year": {
+      "2011": {
+        "ten_ks": 5150,
+        "changed": 711,
+        "rate": 0.1381
+      },
+      "2012": {
+        "ten_ks": 6584,
+        "changed": 767,
+        "rate": 0.1165
+      },
+      "2013": {
+        "ten_ks": 6548,
+        "changed": 742,
+        "rate": 0.1133
+      },
+      "2014": {
+        "ten_ks": 6507,
+        "changed": 893,
+        "rate": 0.1372
+      },
+      "2015": {
+        "ten_ks": 6214,
+        "changed": 1005,
+        "rate": 0.1617
+      },
+      "2016": {
+        "ten_ks": 5736,
+        "changed": 952,
+        "rate": 0.166
+      },
+      "2017": {
+        "ten_ks": 5683,
+        "changed": 927,
+        "rate": 0.1631
+      },
+      "2018": {
+        "ten_ks": 5537,
+        "changed": 587,
+        "rate": 0.106
+      },
+      "2019": {
+        "ten_ks": 5346,
+        "changed": 473,
+        "rate": 0.0885
+      },
+      "2020": {
+        "ten_ks": 5378,
+        "changed": 553,
+        "rate": 0.1028
+      },
+      "2021": {
+        "ten_ks": 5745,
+        "changed": 496,
+        "rate": 0.0863
+      },
+      "2022": {
+        "ten_ks": 5721,
+        "changed": 524,
+        "rate": 0.0916
+      },
+      "2023": {
+        "ten_ks": 5526,
+        "changed": 436,
+        "rate": 0.0789
+      },
+      "2024": {
+        "ten_ks": 727,
+        "changed": 39,
+        "rate": 0.0536
+      }
+    },
+    "any_of_four_by_filer_status": {
+      "1-LAF": {
+        "ten_ks": 25023,
+        "changed": 2914,
+        "rate": 0.1165
+      },
+      "2-ACC": {
+        "ten_ks": 14488,
+        "changed": 1793,
+        "rate": 0.1238
+      },
+      "4-NON": {
+        "ten_ks": 19436,
+        "changed": 2327,
+        "rate": 0.1197
+      },
+      "5-SML": {
+        "ten_ks": 17384,
+        "changed": 2057,
+        "rate": 0.1183
+      }
+    },
+    "days_from_10k_to_first_change": {
+      "first_changes_counted": 16516,
+      "line_items": [
+        "equity",
+        "net_income",
+        "operating_cash_flow",
+        "total_assets"
+      ],
+      "days_quantiles": {
+        "p10": 69,
+        "p25": 240,
+        "p50": 366,
+        "p75": 594,
+        "p90": 735
+      },
+      "share_by_window": {
+        "0-90 days": 0.1417,
+        "91-300 days": 0.1431,
+        "301-450 days (next 10-K)": 0.4226,
+        "451-730 days": 0.1556,
+        "over 730 days": 0.1369
+      }
+    }
+  },
+  "item_4_02_signals": {
+    "base_rate": 0.0366,
+    "ten_ks": 76405,
+    "positives": 2794,
+    "signals": {
+      "formerly a blank-check company (SPAC)": {
+        "flagged": 1908,
+        "positives_among_flagged": 267,
+        "precision": 0.1399,
+        "lift": 3.83,
+        "recall": 0.0956,
+        "share_flagged": 0.025
+      },
+      "an Item 4.02 in the prior 24 months": {
+        "flagged": 3647,
+        "positives_among_flagged": 347,
+        "precision": 0.0951,
+        "lift": 2.6,
+        "recall": 0.1242,
+        "share_flagged": 0.0477
+      },
+      "very late filer: more than 180 days": {
+        "flagged": 1535,
+        "positives_among_flagged": 135,
+        "precision": 0.0879,
+        "lift": 2.41,
+        "recall": 0.0483,
+        "share_flagged": 0.0201
+      },
+      "NT 10-K late notice filed for this 10-K": {
+        "flagged": 9779,
+        "positives_among_flagged": 825,
+        "precision": 0.0844,
+        "lift": 2.31,
+        "recall": 0.2953,
+        "share_flagged": 0.128
+      },
+      "late filer: 10-K more than 90 days after year end": {
+        "flagged": 12249,
+        "positives_among_flagged": 954,
+        "precision": 0.0779,
+        "lift": 2.13,
+        "recall": 0.3414,
+        "share_flagged": 0.1603
+      },
+      "top-decile asset growth": {
+        "flagged": 7539,
+        "positives_among_flagged": 543,
+        "precision": 0.072,
+        "lift": 1.97,
+        "recall": 0.1943,
+        "share_flagged": 0.0987
+      },
+      "auditor change (Item 4.01) in the prior 24 months": {
+        "flagged": 12823,
+        "positives_among_flagged": 863,
+        "precision": 0.0673,
+        "lift": 1.84,
+        "recall": 0.3089,
+        "share_flagged": 0.1678
+      },
+      "top-decile receivables growth (over assets)": {
+        "flagged": 4301,
+        "positives_among_flagged": 284,
+        "precision": 0.066,
+        "lift": 1.81,
+        "recall": 0.1016,
+        "share_flagged": 0.0563
+      },
+      "an earlier Item 4.02 (ever)": {
+        "flagged": 10438,
+        "positives_among_flagged": 684,
+        "precision": 0.0655,
+        "lift": 1.79,
+        "recall": 0.2448,
+        "share_flagged": 0.1366
+      },
+      "10-K/A or 10-Q/A in the prior 24 months": {
+        "flagged": 10346,
+        "positives_among_flagged": 673,
+        "precision": 0.065,
+        "lift": 1.78,
+        "recall": 0.2409,
+        "share_flagged": 0.1354
+      },
+      "Beneish M-score above -1.78": {
+        "flagged": 3545,
+        "positives_among_flagged": 229,
+        "precision": 0.0646,
+        "lift": 1.77,
+        "recall": 0.082,
+        "share_flagged": 0.0464
+      },
+      "negative equity": {
+        "flagged": 13370,
+        "positives_among_flagged": 821,
+        "precision": 0.0614,
+        "lift": 1.68,
+        "recall": 0.2938,
+        "share_flagged": 0.175
+      },
+      "smallest decile by total assets": {
+        "flagged": 7641,
+        "positives_among_flagged": 444,
+        "precision": 0.0581,
+        "lift": 1.59,
+        "recall": 0.1589,
+        "share_flagged": 0.1
+      },
+      "top-decile accruals (net income minus operating cash flow, over assets)": {
+        "flagged": 7442,
+        "positives_among_flagged": 402,
+        "precision": 0.054,
+        "lift": 1.48,
+        "recall": 0.1439,
+        "share_flagged": 0.0974
+      },
+      "smaller reporting company or non-accelerated filer": {
+        "flagged": 36820,
+        "positives_among_flagged": 1946,
+        "precision": 0.0529,
+        "lift": 1.45,
+        "recall": 0.6965,
+        "share_flagged": 0.4819
+      },
+      "net loss": {
+        "flagged": 36392,
+        "positives_among_flagged": 1827,
+        "precision": 0.0502,
+        "lift": 1.37,
+        "recall": 0.6539,
+        "share_flagged": 0.4763
+      },
+      "first 10-K in the data": {
+        "flagged": 11348,
+        "positives_among_flagged": 559,
+        "precision": 0.0493,
+        "lift": 1.35,
+        "recall": 0.2001,
+        "share_flagged": 0.1485
+      },
+      "top-decile soft assets": {
+        "flagged": 7641,
+        "positives_among_flagged": 343,
+        "precision": 0.0449,
+        "lift": 1.23,
+        "recall": 0.1228,
+        "share_flagged": 0.1
+      },
+      "three or more core line items missing": {
+        "flagged": 12950,
+        "positives_among_flagged": 548,
+        "precision": 0.0423,
+        "lift": 1.16,
+        "recall": 0.1961,
+        "share_flagged": 0.1695
+      },
+      "any earlier revision of its figures": {
+        "flagged": 45262,
+        "positives_among_flagged": 1613,
+        "precision": 0.0356,
+        "lift": 0.97,
+        "recall": 0.5773,
+        "share_flagged": 0.5924
+      },
+      "large accelerated filer": {
+        "flagged": 25023,
+        "positives_among_flagged": 385,
+        "precision": 0.0154,
+        "lift": 0.42,
+        "recall": 0.1378,
+        "share_flagged": 0.3275
+      },
+      "largest decile by total assets": {
+        "flagged": 7641,
+        "positives_among_flagged": 85,
+        "precision": 0.0111,
+        "lift": 0.3,
+        "recall": 0.0304,
+        "share_flagged": 0.1
+      }
+    }
+  },
+  "beneish_at_cutoff": {
+    "cutoff": -1.78,
+    "ten_ks_with_all_eight_ratios": 26708,
+    "flagged": 3545,
+    "share_flagged": 0.1327,
+    "item_4_02_within_24m": {
+      "base_rate_among_computable": 0.0362,
+      "positives_among_flagged": 229,
+      "precision": 0.0646,
+      "lift": 1.78,
+      "recall": 0.2366,
+      "positives_among_computable": 968
+    },
+    "revision_within_24m": {
+      "base_rate_among_computable": 0.0899,
+      "positives_among_flagged": 380,
+      "precision": 0.1072,
+      "lift": 1.19,
+      "recall": 0.1582,
+      "positives_among_computable": 2402
+    }
+  }
+}

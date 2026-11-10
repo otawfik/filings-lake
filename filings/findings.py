@@ -57,6 +57,8 @@ def revision_tables(annual: pd.DataFrame, first_rev: pd.DataFrame) -> dict:
     hit = {c: set(g.adsh) for c, g in within.groupby("concept")}
     by_item = {}
     for c in CONCEPTS:
+        if c == "eps_diluted":  # per-share: can never clear the $100K threshold, so it has no revision rate
+            continue
         reported = annual[annual[c].notna()] if c in annual else annual.iloc[0:0]
         n = len(reported)
         k = reported.adsh.isin(hit.get(c, set())).sum()
