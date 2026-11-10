@@ -5,7 +5,7 @@ import pytest
 
 from filings.concepts import CONCEPTS, PRIORITY, TAGS
 from filings.ingest import quarters
-from filings.model import beneish, labels, precision_at, prior_revisions
+from filings.model import beneish, precision_at, prior_revisions, revision_labels
 
 
 def test_quarters_span_years():
@@ -58,7 +58,7 @@ def test_labels_count_real_revisions_and_skip_sign_flips_revenue_and_late_ones()
         rev(4, "2019-12-31", "equity", 0, 100, 90, 900),         # after the 24-month horizon
         rev(5, "2019-12-31", "net_income", 1, 100, 90, 100),     # a quarter, not the year
     ])
-    assert labels(annual, revs).tolist() == [1, 0, 0, 0, 0]
+    assert revision_labels(annual, revs).tolist() == [1, 0, 0, 0, 0]
 
 
 def test_prior_revisions_only_counts_what_was_filed_before():
