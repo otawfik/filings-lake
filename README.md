@@ -20,7 +20,8 @@ was read from.
   inventory and cost of sales under different tags or not at all.
 - **Pipeline output (full history):** 12,436,144 silver facts, 218,837 revisions, 91,958 company-years,
   384,620 filings; 47,037 event rows (8-K Item 4.02 and 4.01, NT 10-K). `python -m filings.pipeline`
-  runs in **280 s** on a laptop (Spark local, 2 GB driver, 8 cores); `python -m filings.model` in **469 s**.
+  runs in **280 s** on a laptop (Spark local, 2 GB driver, 8 cores); `python -m filings.model` in **268 s**
+(all four targets, model selection, baselines, bootstrap intervals and permutation importance).
 - **Item 4.02 feed:** 5,198 8-K filings declaring Item 4.02 "Non-Reliance on Previously Issued Financial
   Statements" from 2009 to November 2026 (4,545 original 8-Ks, the rest 8-K/As), from EDGAR full-text
   search, keeping only filings whose header declares the item. Checked against EDGAR's own per-company
@@ -67,6 +68,9 @@ changes, late-filing notices and amendments.
 |---|---|---|---|---|
 | model (gradient boosting) | **0.713** | **0.100** | **12.2%** | **11.7%** |
 | model without the company's own history | 0.717 | 0.103 | 13.8% | 11.5% |
+| **filing lag alone** (days from year-end to the 10-K, no model) | 0.698 | 0.081 | 10.3% | 9.7% |
+| lateness only (lag + late-filing notices, gradient boosting) | 0.693 | 0.082 | 10.8% | 10.2% |
+| model with every lateness feature removed | 0.694 | 0.085 | 9.8% | 9.5% |
 | Beneish M-score (published coefficients) | 0.502 | 0.053 | 8.8% | 6.1% |
 | the eight Beneish ratios, refitted | 0.578 | 0.064 | 7.1% | 7.2% |
 
@@ -85,8 +89,12 @@ Same split, other targets:
 
 **What the model is actually using.** Permutation importance on the 4.02 target: filing lag (days from
 year-end to the 10-K) costs 0.144 AUC when shuffled; everything else under 0.022 (equity/assets 0.021,
-size 0.018, leverage index 0.008). The model is mostly a well-calibrated "late filers restate" rule
-with financial ratios on top; see the lift table below for how far the lateness signal alone goes. The
+size 0.018, leverage index 0.008). The model is mostly a "late filers restate" rule with financial
+ratios on top, and the baselines above measure exactly how much: **filing lag alone, with no model,
+reaches 0.698 AUC**, so the full model adds only 0.015 AUC to it. The gain shows up where a screen is
+judged: precision in the top 5% rises from 10.3% to 12.2%, and average precision from 0.081 to 0.100.
+And lateness isn't the only signal: with every lateness feature removed the model still reaches 0.694,
+so the financial statements carry nearly as much information on their own; the two overlap. The
 no-history variant is as good as the full one, so "they did it before" adds nothing the lateness and
 ratios don't already carry.
 
@@ -232,8 +240,9 @@ Two findings from building the labels:
 - The 4.02 label is firm-level: about half of the positives' 4.02s name the 10-K's own year. The
   stricter "names this year" target is reported and the model is weaker on it (0.710 AUC, 5.6% top-5%
   precision at a 2.3% base rate).
-- Filing lag carries most of the model's signal. A model that knows nothing but how late the 10-K was
-  would get a good part of the way; the ratios add to it but don't replace it.
+- Filing lag carries most of the model's signal: lag alone scores 0.698 AUC against the model's 0.713.
+  On the revision target, lag alone (0.621) even beats the model's AUC (0.613), though the model is
+  still better at the top of the ranking (22.2% top-5% precision against 14.3%).
 - Test years 2021-2024 include the SPAC-accounting wave; the ex-warrants target removes 4.02s whose text
   mentions warrants or redeemable shares, found by keyword, which will miss some and catch some that
   are only partly about them.

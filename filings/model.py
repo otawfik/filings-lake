@@ -302,11 +302,19 @@ def compare(x: pd.DataFrame, y: np.ndarray, train: np.ndarray, test: np.ndarray,
     yt, ct = y[test], comp[test]
     no_hist = x.drop(columns=[c for c in HISTORY if c in x])
     _, _, p_nh = fit_predict(best, no_hist, y, train, test)
+    # how far lateness alone goes, and what everything else adds without it
+    lag = x.filing_lag_days.values[test].astype(float)
+    p_lag = np.where(np.isnan(lag), np.nanmedian(x.filing_lag_days.values[train]), lag)
+    late = [c for c in ("filing_lag_days", "late_notice", "late_notices_3y") if c in x]
+    _, _, p_late = fit_predict("gbm_all_features", x[late], y, train, test)
+    _, _, p_nolag = fit_predict(best, x.drop(columns=late), y, train, test)
     out = {
         "rows": {"train": int(train.sum()), "test": int(test.sum()), "positives_train": int(y[train].sum()),
                  "positives_test": int(yt.sum()), "positive_rate_train": round(float(y[train].mean()), 4),
                  "positive_rate_test": round(float(yt.mean()), 4), "m_score_computable_test": round(float(ct.mean()), 4)},
         "test_all": {"model": evaluate(yt, p), "model_without_history": evaluate(yt, p_nh),
+                     "filing_lag_alone": evaluate(yt, p_lag), "lateness_features_only": evaluate(yt, p_late),
+                     "model_without_lateness": evaluate(yt, p_nolag),
                      "beneish_m_score": evaluate(yt, m_test), "beneish_ratios_refit": evaluate(yt, p_lr),
                      "base_rate": round(float(yt.mean()), 4)},
         "test_m_score_computable": {"model": evaluate(yt[ct], p[ct]), "model_without_history": evaluate(yt[ct], p_nh[ct]),
