@@ -110,6 +110,25 @@ func TestPollStoresEachEventOnceAndPublishesIt(t *testing.T) {
 	}
 }
 
+func TestEventsAreNumberedOldestFirstAndAJointFilingAcrossPagesIsMerged(t *testing.T) {
+	r := newRig(t, "")
+	r.p.PageSize = 2
+	joint := filing(2, "8-K", "4.02")
+	joint.Companies = append(joint.Companies, edgar.Company{CIK: 2000002, Name: "COMPANY 2 FINANCE LLC"})
+	// Newest first the feed reads 3, 2 (filer A) | 2 (filer B), 1: the joint filing straddles the pages.
+	r.srv.Publish(filing(1, "8-K", "4.02"), joint, filing(3, "8-K", "4.01"))
+	if n := r.poll(t); n != 3 {
+		t.Fatalf("stored %d events, want 3", n)
+	}
+	evs := r.store.List(store.Query{})
+	if got := fmt.Sprintf("%s %s %s", evs[0].Accession[17:], evs[1].Accession[17:], evs[2].Accession[17:]); got != "001 002 003" {
+		t.Errorf("events were numbered in the order %s, want oldest first", got)
+	}
+	if len(evs[1].Companies) != 2 {
+		t.Errorf("the joint filing has %d filers, want both: %+v", len(evs[1].Companies), evs[1].Companies)
+	}
+}
+
 func TestJointFilingIsOneEventWithEveryFiler(t *testing.T) {
 	r := newRig(t, "")
 	f := filing(7, "8-K", "4.02")

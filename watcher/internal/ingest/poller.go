@@ -137,56 +137,58 @@ func (p *Poller) PollOnce(ctx context.Context) (newEvents int, err error) {
 }
 
 // pollForm reads the feed newest first, a page at a time, until it reaches a filing an earlier poll
-// already handled, a short page, or MaxPages.
+// already handled, a short page, or MaxPages. It then handles what it collected oldest first, so
+// event IDs run in the order EDGAR accepted the filings, and a joint filing whose entries fell on
+// two pages is merged into one.
 func (p *Poller) pollForm(ctx context.Context, form string) (newEvents int, err error) {
-	var handled []string
-	// Marked only when the poll of this form ends (also on error: what was handled stays handled).
-	// Marking as it goes would let a filing that slid from one page onto the next, because newer
-	// ones arrived between the two requests, look like known ground and stop the walk early.
-	defer func() { p.markKnown(handled) }()
 	p.mu.Lock()
 	first := len(p.known) == 0 // nothing is known yet, so there is no known ground to reach
 	p.mu.Unlock()
-	for page := 0; page < p.MaxPages; page++ {
+
+	var fresh []edgar.Filing
+	caughtUp := false
+	for page := 0; page < p.MaxPages && !caughtUp; page++ {
 		body, err := p.Fetch.Get(ctx, p.Fetch.LatestURL(form, page*p.PageSize, p.PageSize), maxFeedBytes)
 		if err != nil {
-			return newEvents, err
+			return 0, err
 		}
 		entries, skipped, err := edgar.ParseAtom(body)
 		if err != nil {
-			return newEvents, err
+			return 0, err
 		}
 		p.m.entries.Add(float64(len(entries)), form)
 		p.m.skipped.Add(float64(skipped))
-		caughtUp := false
-		var firstErr error
-		for _, f := range edgar.Merge(entries) {
+		for _, f := range entries {
 			if p.isKnown(f.Accession) {
 				caughtUp = true
 				continue
 			}
-			n, err := p.handle(ctx, f)
-			newEvents += n
-			if err != nil {
-				if firstErr == nil {
-					firstErr = err
-				}
-				continue // not marked known, so the next poll tries this filing again
+			fresh = append(fresh, f)
+		}
+		if len(entries)+skipped < p.PageSize {
+			caughtUp = true // the end of the feed
+		}
+	}
+	if !caughtUp && !first {
+		p.Log.Warn("feed moved more than the pages read in one poll; older filings may have been missed", "form", form, "pages", p.MaxPages)
+	}
+
+	fresh = edgar.Merge(fresh)
+	var handled []string
+	var firstErr error
+	for i := len(fresh) - 1; i >= 0; i-- {
+		n, err := p.handle(ctx, fresh[i])
+		newEvents += n
+		if err != nil {
+			if firstErr == nil {
+				firstErr = err
 			}
-			handled = append(handled, f.Accession)
+			continue // not marked known, so the next poll tries this filing again
 		}
-		if firstErr != nil {
-			return newEvents, firstErr
-		}
-		if caughtUp || len(entries)+skipped < p.PageSize {
-			return newEvents, nil
-		}
+		handled = append(handled, fresh[i].Accession)
 	}
-	if first {
-		return newEvents, nil
-	}
-	p.Log.Warn("feed moved more than the pages read in one poll; older filings may have been missed", "form", form, "pages", p.MaxPages)
-	return newEvents, nil
+	p.markKnown(handled)
+	return newEvents, firstErr
 }
 
 // handle stores the events one filing declares.
