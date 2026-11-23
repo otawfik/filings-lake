@@ -64,6 +64,11 @@ func (r *Registry) GaugeFunc(name, help string, fn func() float64) {
 	r.register(name, help, "gauge", nil).fn = fn
 }
 
+// CounterFunc is GaugeFunc for a count kept elsewhere that only goes up.
+func (r *Registry) CounterFunc(name, help string, fn func() float64) {
+	r.register(name, help, "counter", nil).fn = fn
+}
+
 func (f *family) key(values []string) string {
 	if len(values) != len(f.labels) {
 		panic(fmt.Sprintf("metrics: %s takes %d label values, got %d", f.name, len(f.labels), len(values)))
