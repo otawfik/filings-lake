@@ -240,3 +240,24 @@ func TestURLs(t *testing.T) {
 		}
 	}
 }
+
+func TestSmallReadsAskForARange(t *testing.T) {
+	var ranges []string
+	c, _ := testClient(t, func(w http.ResponseWriter, r *http.Request) {
+		ranges = append(ranges, r.Header.Get("Range"))
+		if r.Header.Get("Range") != "" {
+			w.WriteHeader(http.StatusPartialContent)
+		}
+		w.Write([]byte("0123456789"))
+	}, nil)
+	small, err := c.Get(context.Background(), "/x", 4)
+	if err != nil || string(small) != "0123" {
+		t.Fatalf("ranged read: %q %v", small, err)
+	}
+	if _, err := c.Get(context.Background(), "/x", 10<<20); err != nil {
+		t.Fatal(err)
+	}
+	if len(ranges) != 2 || ranges[0] != "bytes=0-3" || ranges[1] != "" {
+		t.Errorf("Range headers sent: %q", ranges)
+	}
+}

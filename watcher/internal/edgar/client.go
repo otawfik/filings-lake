@@ -21,6 +21,8 @@ const (
 	DefaultRPS     = 2.0
 	MaxRPS         = 10.0
 	placeholderUA  = "Your Name you@example.com"
+	rangeBelow     = 64 << 10 // reads capped at or under this size send a Range header
+	HeaderBytes    = 32 << 10 // enough for the SGML header of a filing with many co-registrants
 )
 
 // Config holds everything the client needs. Zero values get safe defaults.
@@ -138,6 +140,11 @@ func (c *Client) once(ctx context.Context, u string, maxBytes int64) (body []byt
 	}
 	req.Header.Set("User-Agent", c.cfg.UserAgent)
 	req.Header.Set("Accept-Encoding", "identity")
+	if maxBytes <= rangeBelow {
+		// A header read wants the first few kilobytes of a file that can run to megabytes. Ask for
+		// just that; a server that ignores Range answers 200 and the body is cut at maxBytes anyway.
+		req.Header.Set("Range", fmt.Sprintf("bytes=0-%d", maxBytes-1))
+	}
 	resp, err := c.cfg.HTTP.Do(req)
 	if err != nil {
 		return nil, 0, 0, err
@@ -145,6 +152,9 @@ func (c *Client) once(ctx context.Context, u string, maxBytes int64) (body []byt
 	defer resp.Body.Close()
 	if s, perr := strconv.Atoi(resp.Header.Get("Retry-After")); perr == nil && s > 0 {
 		retryAfter = time.Duration(s) * time.Second
+	}
+	if resp.StatusCode == http.StatusPartialContent {
+		resp.StatusCode = http.StatusOK
 	}
 	if resp.StatusCode != http.StatusOK {
 		io.Copy(io.Discard, io.LimitReader(resp.Body, 4096)) // let the connection be reused
