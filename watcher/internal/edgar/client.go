@@ -20,10 +20,12 @@ const (
 	DefaultBaseURL = "https://www.sec.gov"
 	DefaultRPS     = 2.0
 	MaxRPS         = 10.0
-	placeholderUA  = "Your Name you@example.com"
 	rangeBelow     = 64 << 10 // reads capped at or under this size send a Range header
 	HeaderBytes    = 32 << 10 // enough for the SGML header of a filing with many co-registrants
 )
+
+// placeholders are the example contacts printed in the README and the usage text, lower-cased.
+var placeholders = map[string]bool{"your name your@email": true, "your name you@example.com": true}
 
 // Config holds everything the client needs. Zero values get safe defaults.
 type Config struct {
@@ -52,7 +54,7 @@ func NewClient(cfg Config) (*Client, error) {
 	if cfg.UserAgent == "" {
 		return nil, errors.New("SEC_USER_AGENT is not set: the SEC requires a User-Agent that identifies you (name and contact email)")
 	}
-	if cfg.UserAgent == placeholderUA {
+	if placeholders[strings.ToLower(cfg.UserAgent)] {
 		return nil, errors.New("SEC_USER_AGENT is still the placeholder from the docs: set your own name and contact email")
 	}
 	if cfg.BaseURL == "" {

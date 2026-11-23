@@ -30,7 +30,7 @@ func testClient(t *testing.T, h http.HandlerFunc, mod func(*Config)) (*Client, *
 }
 
 func TestNewClientRefusesToRunAnonymously(t *testing.T) {
-	for _, ua := range []string{"", "   ", placeholderUA} {
+	for _, ua := range []string{"", "   ", "Your Name your@email", "your name you@example.com"} {
 		if _, err := NewClient(Config{UserAgent: ua}); err == nil || !strings.Contains(err.Error(), "SEC_USER_AGENT") {
 			t.Errorf("User-Agent %q: err = %v, want one naming SEC_USER_AGENT", ua, err)
 		}

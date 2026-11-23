@@ -29,7 +29,7 @@ func TestServeAndReplayRefuseToRunWithoutAContact(t *testing.T) {
 		{"serve", "-addr", "127.0.0.1:0", "-data", t.TempDir()},
 		{"replay", "-csv", "../../../data/item_4_02.csv", "-sample", "1"},
 	} {
-		for _, ua := range []string{"", "Your Name you@example.com"} {
+		for _, ua := range []string{"", "Your Name your@email"} {
 			err := run(context.Background(), args, env(map[string]string{"SEC_USER_AGENT": ua}), io.Discard, io.Discard)
 			if err == nil || !strings.Contains(err.Error(), "SEC_USER_AGENT") {
 				t.Errorf("%v with SEC_USER_AGENT=%q: err = %v", args[0], ua, err)
