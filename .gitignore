@@ -11,3 +11,5 @@ derby.log
 spark-tmp/
 *.log
 nohup.out
+watcher-data/
+watcher/watcher
