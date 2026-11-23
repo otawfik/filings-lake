@@ -253,6 +253,68 @@ Two findings from building the labels:
 - Nothing here is a fraud detector. An Item 4.02 is a company's own statement that its filed numbers
   can't be relied on, which includes honest errors and interpretation changes.
 
+## Live watcher
+
+The pipeline above reads history. `watcher/` is a small Go service that follows the same three events
+as they are filed: it polls EDGAR's latest-filings feed, keeps the filings that are an 8-K declaring
+Item 4.02 or Item 4.01 or a Form NT 10-K, stores each once, and serves them as JSON and as a live
+stream. It uses the standard library only, so there is no dependency to audit or cache.
+
+```bash
+cd watcher
+go run ./cmd/watcher serve -demo                 # made-up filings, no network: see it run
+export SEC_USER_AGENT="Your Name your@email"     # required for anything that contacts sec.gov
+go run ./cmd/watcher serve                       # polls once a minute, listens on :8080
+curl localhost:8080/events?kind=item_4_02        # stored events, newest first
+curl -N localhost:8080/events/stream             # server-sent events as they are found
+curl localhost:8080/healthz ; curl localhost:8080/metrics
+docker build -t filings-watcher . && docker run -p 8080:8080 -v watcher-data:/data -e SEC_USER_AGENT filings-watcher
+```
+
+How it works:
+
+- **Detection** uses the items the filer declared, never the text. The feed prints them on each 8-K
+  entry; if an entry lists none, the filing's SGML header is read instead (one ranged request).
+- **Each event is stored once.** The key is (accession number, kind), so a filing declaring both 4.01
+  and 4.02 is two events and a joint filing by several companies is one. Events go to an append-only
+  JSON-lines log that is synced before the event is shown to anyone; a line cut short by a crash is
+  dropped on restart, and damage anywhere else stops the start-up instead of being skipped.
+- **Polling** walks the feed newest first until it reaches a filing an earlier poll handled, so a
+  quiet minute costs two requests and a busy one a few more. A filing whose header could not be read
+  is not marked handled and is tried again on the next poll.
+- **Politeness.** All requests share one limiter (2 a second by default; the SEC allows 10, and the
+  program refuses a higher setting). Failures back off exponentially with jitter, and a 403 or 429
+  waits at least 30 seconds. The contact comes from `SEC_USER_AGENT` only; without it, or with the
+  placeholder above, the program exits.
+- **The stream** resumes from `Last-Event-ID`. A client that falls a full buffer behind is
+  disconnected and catches up from the store when it reconnects, so one stalled connection cannot
+  hold up the poller or the other clients.
+
+What was measured, and what was not:
+
+- Every test runs against hand-written fixtures in EDGAR's formats or an in-process stand-in for
+  EDGAR. **Nothing in this directory has been run against sec.gov yet**: no contact was configured
+  where it was written. The feed and header formats are coded from EDGAR's published layouts, and
+  the first live run is the check on that.
+- The whole of `data/item_4_02.csv` was replayed through the stand-in feed: its 5,184 filings as
+  8-Ks declaring Item 4.02, mixed with 15,552 other filings, followed over 87 polls with one restart
+  in the middle. The watcher stored 5,184 events, none missing and none extra. This tests paging,
+  merging, dedupe and persistence at the size of the real list. It does not test detection against
+  real filings, because the stand-in's filings are generated from the list.
+- `watcher replay` is the check against real filings, and it has not been run. `-from`/`-to` reads
+  each day's form index and every 8-K's header (a few hundred requests a day of history) and reports
+  the Item 4.02 filings found against the CSV in both directions; `-sample N` reads the headers of N
+  filings from the CSV and reports how many the header rule recognises.
+- Benchmarks (`go test -bench . ./internal/ingest/`, one core of an Apple M3): parsing a full feed
+  page of 100 entries takes 1.5 ms; a poll that finds 100 new 8-Ks, 10 of them events, takes 4.5 ms
+  in memory and 34 ms with each event synced to disk; a poll that finds nothing new takes 1.7 ms;
+  delivering one event to 1,000 stream clients takes 37 µs. The watcher's cost is small next to the
+  one-minute poll; the time to see a filing is set by the polling interval and by EDGAR's feed.
+
+Known limits: the API lists the last 5,000 events from memory (the log has all of them); a filing
+that leaves the first five feed pages between two polls is missed, with a warning in the log; and
+amendments (8-K/A, NT 10-K/A) are reported as events of the same kind as the forms they amend.
+
 ## Run
 
 ```bash
@@ -267,6 +329,7 @@ python -m filings.pipeline
 python -m filings.model
 python -m filings.findings
 pytest -q
+(cd watcher && go test ./...)                # the live watcher: no network needed
 ```
 
 Data: SEC Financial Statement Data Sets and EDGAR filings, US government works in the public domain.
