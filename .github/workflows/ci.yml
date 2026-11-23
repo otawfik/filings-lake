@@ -11,3 +11,28 @@ jobs:
           cache: pip
       - run: pip install -r requirements.txt
       - run: pytest -q
+
+  watcher:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: watcher
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: watcher/go.mod
+          cache: false  # the module has no dependencies to cache
+      - name: gofmt
+        run: test -z "$(gofmt -l .)" || (gofmt -l . && exit 1)
+      - run: go vet ./...
+      # Every test runs against fixtures or the in-process stand-in: nothing here contacts sec.gov.
+      - run: go test -race -count=1 ./...
+      - name: build the image and run it in demo mode
+        run: |
+          docker build -t filings-watcher .
+          docker run -d --name w -p 8080:8080 filings-watcher serve -demo -interval 2s
+          for i in $(seq 1 20); do curl -fs localhost:8080/healthz && break; sleep 1; done
+          curl -fs localhost:8080/healthz
+          curl -fs "localhost:8080/events?limit=1"
+          docker rm -f w
