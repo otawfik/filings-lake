@@ -44,6 +44,12 @@ func newRig(t *testing.T, path string) *rig {
 	return r
 }
 
+// reg2 is a fresh registry for a second poller in the same test (metric names register once each).
+func (r *rig) reg2() *metrics.Registry {
+	r.reg = metrics.New()
+	return r.reg
+}
+
 func (r *rig) poll(t *testing.T) int {
 	t.Helper()
 	n, err := r.p.PollOnce(context.Background())
