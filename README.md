@@ -293,18 +293,21 @@ How it works:
 What was measured, and what was not:
 
 - Every test runs against hand-written fixtures in EDGAR's formats or an in-process stand-in for
-  EDGAR. **Nothing in this directory has been run against sec.gov yet**: no contact was configured
-  where it was written. The feed and header formats are coded from EDGAR's published layouts, and
-  the first live run is the check on that.
+  EDGAR, so the tests need no network. The formats were then checked against sec.gov on
+  23 November 2026: one live poll (`watcher serve -rps 1`) read 500 8-K feed entries in 6 requests
+  with none skipped, and reported six events filed that day (three Item 4.02, three Item 4.01),
+  each from the items printed in the feed. One poll on one day is a format check, not a recall
+  measurement, and no NT 10-K was in the feed at the time, so that path has not been seen live.
 - The whole of `data/item_4_02.csv` was replayed through the stand-in feed: its 5,184 filings as
   8-Ks declaring Item 4.02, mixed with 15,552 other filings, followed over 87 polls with one restart
   in the middle. The watcher stored 5,184 events, none missing and none extra. This tests paging,
   merging, dedupe and persistence at the size of the real list. It does not test detection against
   real filings, because the stand-in's filings are generated from the list.
-- `watcher replay` is the check against real filings, and it has not been run. `-from`/`-to` reads
-  each day's form index and every 8-K's header (a few hundred requests a day of history) and reports
-  the Item 4.02 filings found against the CSV in both directions; `-sample N` reads the headers of N
-  filings from the CSV and reports how many the header rule recognises.
+- `watcher replay` is the check against real filings. `-sample 200` (seed 1) read the headers of
+  200 filings drawn from the CSV: the header rule recognised **200 of 200** as Item 4.02, none
+  unreadable. That is recall on filings already known to be positive. The two-directional check
+  (`-from`/`-to`, which reads each day's form index and every 8-K's header and compares the Item
+  4.02 filings found with the CSV both ways) has not been run.
 - Benchmarks (`go test -bench . ./internal/ingest/`, one core of an Apple M3): parsing a full feed
   page of 100 entries takes 1.5 ms; a poll that finds 100 new 8-Ks, 10 of them events, takes 4.5 ms
   in memory and 34 ms with each event synced to disk; a poll that finds nothing new takes 1.7 ms;
