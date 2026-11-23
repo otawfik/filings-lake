@@ -1,0 +1,17 @@
+Description:           Daily Index of EDGAR Dissemination Feed by Form Type
+Last Data Received:    May 2, 2024
+Comments:              webmaster@sec.gov
+Anonymous FTP:         ftp://ftp.sec.gov/edgar/
+
+ 
+ 
+ 
+Form Type   Company Name                                                  CIK         Date Filed  File Name
+---------------------------------------------------------------------------------------------------------------------------------------------
+10-K        ANNUAL REPORT CO                                              1000020     20240502    edgar/data/1000020/0001000020-24-000001.txt
+8-K         EXAMPLE HOLDINGS INC                                          1000001     20240502    edgar/data/1000001/0001000001-24-000069.txt
+8-K         JOINT FILER PARENT CORP                                       1000003     20240502    edgar/data/1000003/0001000003-24-000040.txt
+8-K/A       ACME (HOLDINGS) - WEST CO                                     1000005     20240502    edgar/data/1000005/0001000005-24-000007.txt
+NT 10-K     LATE FILER INC                                                1000009     20240502    edgar/data/1000009/0001000009-24-000002.txt
+NT 10-Q     QUARTERLY LATE CO                                             1000011     20240502    edgar/data/1000011/0001000011-24-000008.txt
+SC 13G/A    A VERY LONG COMPANY NAME THAT RUNS RIGHT UP TO THE EDGE OF I  1000021     20240502    edgar/data/1000021/0001000021-24-000004.txt
