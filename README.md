@@ -306,8 +306,10 @@ What was measured, and what was not:
 - `watcher replay` is the check against real filings. `-sample 200` (seed 1) read the headers of
   200 filings drawn from the CSV: the header rule recognised **200 of 200** as Item 4.02, none
   unreadable. That is recall on filings already known to be positive. The two-directional check
-  (`-from`/`-to`, which reads each day's form index and every 8-K's header and compares the Item
-  4.02 filings found with the CSV both ways) has not been run.
+  (`-from 2026-11-02 -to 2026-11-06`) read each day's form index and the header of all 2,344 8-Ks
+  filed that week, none unreadable: the watcher found 4 Item 4.02 filings, the CSV lists the same
+  4, with none on one side only. Four events in one week is a small sample; it shows the two
+  agree on that week, not a precision estimate.
 - Benchmarks (`go test -bench . ./internal/ingest/`, one core of an Apple M3): parsing a full feed
   page of 100 entries takes 1.5 ms; a poll that finds 100 new 8-Ks, 10 of them events, takes 4.5 ms
   in memory and 34 ms with each event synced to disk; a poll that finds nothing new takes 1.7 ms;
